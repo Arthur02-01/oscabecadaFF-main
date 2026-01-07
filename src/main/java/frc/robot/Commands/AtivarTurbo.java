@@ -1,44 +1,67 @@
-package frc.robot.Commands;
+package frc.robot.Commands; 
+// Define o pacote onde este comando está localizado
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystem.Traction;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard; 
+// Importa a classe que permite enviar dados para o SmartDashboard
 
-public class AtivarTurbo extends Command{
-    public Traction traction;
-    public AtivarTurbo(Traction traction) {
-        this.traction = traction;
+import edu.wpi.first.wpilibj2.command.Command; 
+// Importa a classe base para criação de comandos no modelo Command-Based
 
-        // Use addRequirements() here to declare subsystem dependencies.
-        addRequirements(traction);
+import frc.robot.Subsystem.Traction; 
+// Importa o subsistema de tração do robô
+
+public class AtivarTurbo extends Command { 
+// Declara a classe AtivarTurbo, que é um comando
+
+    public Traction traction; 
+    // Referência ao subsistema Traction, usada para acessar e alterar o estado do turbo
+
+    public AtivarTurbo(Traction traction) { 
+    // Construtor do comando, recebe o subsistema Traction
+
+        this.traction = traction; 
+        // Armazena o subsistema recebido na variável da classe
+
+        addRequirements(traction); 
+        // Informa ao scheduler que este comando utiliza o subsistema Traction
     }
 
-    // Called when the command is initially scheduled.
     @Override
-    public void initialize() {
-        if(traction.turbo == false){
-        traction.ativarTurbo(true);
-        } else {
-            traction.ativarTurbo(false);
+    public void initialize() { 
+    // Método executado uma única vez quando o comando é iniciado
+
+        if (traction.turbo == false) { 
+        // Verifica se o turbo está desligado
+
+            traction.ativarTurbo(true); 
+            // Ativa o modo turbo
+
+        } else { 
+        // Caso o turbo já esteja ligado
+
+            traction.ativarTurbo(false); 
+            // Desativa o modo turbo
         }
-        SmartDashboard.putBoolean("Turbo: ", traction.turbo);
+
+        SmartDashboard.putBoolean("Turbo: ", traction.turbo); 
+        // Envia o estado atual do turbo para o SmartDashboard
     }
 
-    // Called every time the scheduler runs while the command is scheduled.
     @Override
-    public void execute(){
-
+    public void execute() { 
+    // Método chamado repetidamente enquanto o comando estiver ativo
     }
 
-    // Called once the command ends or is interrupted.
     @Override
-    public void end(boolean interrupted) {
+    public void end(boolean interrupted) { 
+    // Método chamado quando o comando termina ou é interrompido
     }
 
-    // Returns true when the command should end.
     @Override
-    public boolean isFinished() {
-        return true;
+    public boolean isFinished() { 
+    // Define quando o comando deve finalizar
+
+        return true; 
+        // Retorna true para encerrar o comando imediatamente após a execução
     }
 }
-
