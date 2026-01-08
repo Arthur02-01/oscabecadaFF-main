@@ -15,6 +15,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Commands.ParadaDeEmergencia;
   
 public class IntakeFloor extends SubsystemBase {
   /*Define a classe, e busca o import da wpilib SusbsystemBase */
