@@ -2,128 +2,146 @@
 package frc.robot.Subsystem;
 
 // Imports das classes da REV (Spark MAX)
-import com.revrobotics.spark.SparkBase.PersistMode;      // Define se a configuração será salva no controlador
-import com.revrobotics.spark.SparkLowLevel.MotorType;    // Define o tipo do motor (brushed ou brushless)
-import com.revrobotics.spark.SparkMax;                   // Classe do controlador Spark MAX
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode; // Modo de parada do motor (Brake ou Coast)
-import com.revrobotics.spark.config.SparkMaxConfig;      // Classe para configurar o Spark MAX
-import com.revrobotics.spark.SparkBase.ResetMode;        // Define como o Spark deve resetar parâmetros
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 // Imports da WPILib
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;    // Classe para controle de tração diferencial
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup; // Agrupa motores
-import edu.wpi.first.wpilibj2.command.SubsystemBase;     // Classe base de subsistemas no Command-based
-import frc.robot.Constants;                              // Classe de constantes do robô
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.Encoder;
+
+import frc.robot.Constants;
 
 // Declara o subsistema de tração
 public class Traction extends SubsystemBase {
 
-        // Variável que indica se o modo turbo está ativo
-        public boolean turbo;
+    // VARIÁVEIS 
 
-        // Instancia os motores Spark MAX do lado direito e esquerdo
-        // Os IDs vêm da classe Constants
-        // MotorType.kBrushed indica que são motores DC escovados
-        SparkMax rightMotorFront = new SparkMax(
-                Constants.TractionConstants.rightFrontMotorID, MotorType.kBrushed);
+    public boolean turbo;
 
-        SparkMax rightMotorback = new SparkMax(
-                Constants.TractionConstants.rightBackMotorID, MotorType.kBrushed);
+    // Motores
+    private SparkMax rightMotorFront =
+            new SparkMax(Constants.TractionConstants.rightFrontMotorID, MotorType.kBrushed);
 
-        SparkMax leftMotorback = new SparkMax(
-                Constants.TractionConstants.leftFrontMotorID, MotorType.kBrushed);
+    private SparkMax rightMotorBack =
+            new SparkMax(Constants.TractionConstants.rightBackMotorID, MotorType.kBrushed);
 
-        SparkMax leftMotorFront = new SparkMax(
-                Constants.TractionConstants.leftBackMotorID, MotorType.kBrushed);
+    private SparkMax leftMotorFront =
+            new SparkMax(Constants.TractionConstants.leftFrontMotorID, MotorType.kBrushed);
 
-        // Objetos de configuração para os motores
-        SparkMaxConfig configSparkMotorEsquerda = new SparkMaxConfig();
-        SparkMaxConfig configSparkMotorDireita = new SparkMaxConfig();
+    private SparkMax leftMotorBack =
+            new SparkMax(Constants.TractionConstants.leftBackMotorID, MotorType.kBrushed);
 
-        // Agrupa os motores do lado esquerdo
-        // @SuppressWarnings evita aviso de API antiga
-        @SuppressWarnings("removal")
-        MotorControllerGroup leftMotorControllerGroup =
-                new MotorControllerGroup(leftMotorFront, leftMotorback);
+    // Configurações
+    private SparkMaxConfig configSparkMotorEsquerda = new SparkMaxConfig();
+    private SparkMaxConfig configSparkMotorDireita = new SparkMaxConfig();
 
-        // Agrupa os motores do lado direito
-        @SuppressWarnings("removal")
-        MotorControllerGroup rightMotorControllerGroup =
-                new MotorControllerGroup(rightMotorFront, rightMotorback);
+    // Grupos de motores
+    @SuppressWarnings("removal")
+    private MotorControllerGroup leftMotorControllerGroup =
+            new MotorControllerGroup(leftMotorFront, leftMotorBack);
 
-        // Cria o sistema de tração diferencial
-        // Esse objeto cuida do cálculo de velocidade dos motores
-        DifferentialDrive differentialDrive =
-                new DifferentialDrive(leftMotorControllerGroup, rightMotorControllerGroup);
+    @SuppressWarnings("removal")
+    private MotorControllerGroup rightMotorControllerGroup =
+            new MotorControllerGroup(rightMotorFront, rightMotorBack);
 
-        // Construtor do subsistema (executa uma vez quando o robô inicia)
-        public Traction() {
+    // Drive
+    private DifferentialDrive differentialDrive =
+            new DifferentialDrive(leftMotorControllerGroup, rightMotorControllerGroup);
 
-                /*
-                 * Aqui você define se os motores da direita precisam ser invertidos
-                 * Isso depende da montagem física do robô
-                 *
-                 * inverted(true)  -> motor gira ao contrário
-                 * inverted(false) -> motor gira normal
-                 */
+    // ENCODERS 
 
-                // Configuração dos motores da direita
-                configSparkMotorDireita
-                        .inverted(false)                 // Define inversão do motor
-                        .idleMode(IdleMode.kBrake);      // Motor freia ao parar
+    private Encoder leftEncoder =
+            new Encoder(
+                    Constants.TractionConstants.leftEncoderChannelA,
+                    Constants.TractionConstants.leftEncoderChannelB);
 
-                configSparkMotorDireita.smartCurrentLimit(60); // Limite de corrente (proteção elétrica)
+    private Encoder rightEncoder =
+            new Encoder(
+                    Constants.TractionConstants.rightEncoderChannelA,
+                    Constants.TractionConstants.rightEncoderChannelB);
 
-                // Aplica a configuração nos motores da direita
-                rightMotorFront.configure(
-                        configSparkMotorDireita,
-                        ResetMode.kResetSafeParameters,   // Reseta apenas parâmetros seguros
-                        PersistMode.kPersistParameters); // Salva no Spark MAX
+    // CONSTRUTOR
 
-                rightMotorback.configure(
-                        configSparkMotorDireita,
-                        ResetMode.kResetSafeParameters,
-                        PersistMode.kPersistParameters);
+    public Traction() {
 
-                // Configuração dos motores da esquerda
-                configSparkMotorEsquerda
-                        .inverted(false)
-                        .idleMode(IdleMode.kBrake);
+        // Configuração motores da direita
+        configSparkMotorDireita
+                .inverted(false)
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(60);
 
-                configSparkMotorEsquerda.smartCurrentLimit(60);
+        rightMotorFront.configure(
+                configSparkMotorDireita,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
 
-                // Aplica a configuração nos motores da esquerda
-                leftMotorFront.configure(
-                        configSparkMotorEsquerda,
-                        ResetMode.kResetSafeParameters,
-                        PersistMode.kPersistParameters);
+        rightMotorBack.configure(
+                configSparkMotorDireita,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
 
-                leftMotorback.configure(
-                        configSparkMotorEsquerda,
-                        ResetMode.kResetSafeParameters,
-                        PersistMode.kPersistParameters);
-        }
+        // Configuração motores da esquerda
+        configSparkMotorEsquerda
+                .inverted(false)
+                .idleMode(IdleMode.kBrake)
+                .smartCurrentLimit(60);
 
-        // Método chamado automaticamente pelo WPILib a cada ciclo do robô
-        @Override
-        public void periodic() {
-                // Pode ser usado para telemetria, debug ou lógica contínua
-        }
+        leftMotorFront.configure(
+                configSparkMotorEsquerda,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
 
-        // Método para dirigir o robô no modo arcade
-        // drive = frente/trás
-        // turn  = rotação esquerda/direita
-        public void arcadeMode(double drive, double turn) {
-                differentialDrive.arcadeDrive(drive, +turn);
-        }
+        leftMotorBack.configure(
+                configSparkMotorEsquerda,
+                ResetMode.kResetSafeParameters,
+                PersistMode.kPersistParameters);
 
-        // Para completamente os motores
-        public void stop() {
-                differentialDrive.stopMotor();
-        }
+        // ===== CONFIGURAÇÃO DOS ENCODERS
+        double wheelDiameterMeters = 0.1524; // 6 polegadas
+        int pulsesPerRevolution = 1024;      // AJUSTE se necessário
 
-        // Ativa ou desativa o modo turbo
-        public void ativarTurbo(boolean turbo) {
-                this.turbo = turbo;
-        }
+        double distancePerPulse =
+                (Math.PI * wheelDiameterMeters) / pulsesPerRevolution;
+
+        leftEncoder.setDistancePerPulse(distancePerPulse);
+        rightEncoder.setDistancePerPulse(distancePerPulse);
+
+        // Inverta se necessário
+        rightEncoder.setReverseDirection(true);
+    }
+
+    // MÉTODOS
+
+    @Override
+    public void periodic() {
+        // opcional: telemetria
+    }
+
+    public void arcadeMode(double drive, double turn) {
+        differentialDrive.arcadeDrive(drive, turn);
+    }
+
+    public void stop() {
+        differentialDrive.stopMotor();
+    }
+
+    public void ativarTurbo(boolean turbo) {
+        this.turbo = turbo;
+    }
+
+    // ENCODER API 
+    public void resetEncoders() {
+        leftEncoder.reset();
+        rightEncoder.reset();
+    }
+
+    public double getAverageDistance() {
+        return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2.0;
+    }
 }

@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.XboxController;
 
 // Imports do sistema Command-based
 import edu.wpi.first.wpilibj2.command.Command;    // Interface de comandos
-import edu.wpi.first.wpilibj2.command.Commands;   // Comandos utilitários (print, wait, etc.)
 
 // Imports para botões e gatilhos
 import edu.wpi.first.wpilibj2.command.button.JoystickButton; // Botões físicos
@@ -22,6 +21,7 @@ import frc.robot.Commands.Controller;    // Comando padrão de direção
 import frc.robot.Commands.Autonomous.Intakefloor.IntakeDescendo;
 import frc.robot.Commands.Autonomous.Intakefloor.IntakeGirando;
 import frc.robot.Commands.Autonomous.Intakefloor.IntakeSubindo;
+import frc.robot.Commands.Autonomous.Tracao.AndarEncoder;
 
 // Classe responsável por:
 // - Criar subsistemas
@@ -94,10 +94,8 @@ public class RobotContainer {
         .whileTrue(new IntakeDescendo(intakeFloor));
   }
 
-  // Retorna o comando autônomo do robô
-  /*public Command getAutonomousCommand() {
+  public Command getAutonomousCommand() {
+      return new AndarEncoder(traction, 0.3, 0.5);
+  }  
 
-    // Atualmente não existe rotina autônoma configurada
-    return Commands.print("No autonomous command configured");
-  }*/
 }

@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
   
-  @SuppressWarnings("unused")
 public class IntakeFloor extends SubsystemBase {
   /*Define a classe, e busca o import da wpilib SusbsystemBase */
   public SparkMax intakeMarlonMotor = new
@@ -26,20 +25,13 @@ public class IntakeFloor extends SubsystemBase {
   /*Define dentro do Spark, os construtores dos motores, ou seja onde achar seu id e qual o tipo de motor*/
   public static final double LimiteSuperior = 300.0;
   public static final double LimiteInferior = 75.0;
-  public static final double Reducao = 64.0;
+  public static final double Reducao = 12.0;
   /*Seta as funções ainda a serem utilizadas como limitações e reduções */
   private RelativeEncoder intakeMarlonEncoder = intakeMarlonMotor.getEncoder();
   private final SparkClosedLoopController pid = intakeMarlonMotor.getClosedLoopController();
   /*Seta o encoder do intakefloor(intakeMarlon) e tambem as funções PID atualmente chamadas de SparkClosedLoopController para definir o pid */
   public IntakeFloor() {
   /*Abre a classe IntakeFloor de define as susa funções, suas configurações são feitas pelo comando new SparkMaxConfig aonde configura, direção, maxima voltagem, modo parado, modo de como reiniciar e modo ligado */
-  intakeMarlonMotor.configure(
-  new SparkMaxConfig()
-  .idleMode(IdleMode.kBrake)
-  .inverted(false)
-  .smartCurrentLimit(50),
-  ResetMode.kNoResetSafeParameters,
-  PersistMode.kPersistParameters);
   
   intakeCleitaoMotor.configure(
   new SparkMaxConfig()
@@ -50,11 +42,19 @@ public class IntakeFloor extends SubsystemBase {
 
   SparkMaxConfig cfg = new SparkMaxConfig();
   /*Necessario para fazer a config do PID a qual atual precisa setar uma nova config de configuração para setar com o closedloop e a maxima distancia que ele fara */
-  
-  cfg.closedLoop.p(0.02);
-  cfg.closedLoop.i(0);
-  cfg.closedLoop.d(0.0);
-  cfg.closedLoop.outputRange(-1.0, 1.0);
+    
+    cfg
+    .idleMode(IdleMode.kBrake)
+    .inverted(false)
+    .smartCurrentLimit(50);
+
+
+    cfg.closedLoop
+     .p(0.0)
+     .i(0.0)
+     .d(0.0)
+     .outputRange(-1.0, 1.0);
+    
 
   intakeMarlonMotor.configure(
   cfg,
@@ -101,14 +101,14 @@ public class IntakeFloor extends SubsystemBase {
   }
   
   public void setIntakeMarlonVelocidade(double velocidade) {
-  if (velocidade > 0 && noLimiteSuperior()) {
-  intakeMarlonMotor.stopMotor();
+  /*if (velocidade > 0 && noLimiteSuperior()) {
+  intakeMarlonMotor.set(0);
   return;
   }
   if (velocidade < 0 && noLimiteInferior()) {
-  intakeMarlonMotor.stopMotor();
+  intakeMarlonMotor.set(0);
   return;
-  }
+  }*/
   intakeMarlonMotor.set(velocidade);
   /*Comando principal para setar a velocidade do robo, para se acertar as travas de segurança e o joyStick for solto */
   }
@@ -119,13 +119,18 @@ public class IntakeFloor extends SubsystemBase {
   }
   
   public void stopRoller() {
-  intakeCleitaoMotor.stopMotor();
+  intakeCleitaoMotor.set(0);
   }
   
   public void stopIntake() {
     /*Para o intake completamente, utilizando o comando stopMotor */
-  intakeMarlonMotor.stopMotor();
-  intakeCleitaoMotor.stopMotor();
+  intakeMarlonMotor.set(0);
+  intakeCleitaoMotor.set(0);
+  }
+
+  public void Parar(){
+    intakeMarlonMotor.set(0);
+    intakeCleitaoMotor.set(0);
   }
   
   @Override
