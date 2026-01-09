@@ -12,32 +12,45 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Commands.ParadaDeEmergencia;
   
 public class IntakeFloor extends SubsystemBase {
   /*Define a classe, e busca o import da wpilib SusbsystemBase */
-  public SparkMax intakeMarlonMotor = new
-  SparkMax(Constants.IntakeFloor.intakeMarlonMotorID, MotorType.kBrushless);
-  public SparkMax intakeCleitaoMotor = new
-  SparkMax(Constants.IntakeFloor.intakeCleitaoMotorID, MotorType.kBrushless);
+  public SparkMax intakeMarlonMotor;
+  public SparkMax intakeCleitaoMotor;
   /*Define dentro do Spark, os construtores dos motores, ou seja onde achar seu id e qual o tipo de motor*/
-  public static final double LimiteSuperior = 300.0;
-  public static final double LimiteInferior = 75.0;
+  public static final double LimiteSuperior = 350.0;
+  public static final double LimiteInferior = 10.0;
   public static final double Reducao = 12.0;
+  public boolean usandoFF = false;
   /*Seta as funções ainda a serem utilizadas como limitações e reduções */
-  private RelativeEncoder intakeMarlonEncoder = intakeMarlonMotor.getEncoder();
-  private final SparkClosedLoopController pid = intakeMarlonMotor.getClosedLoopController();
+  private RelativeEncoder intakeMarlonEncoder;
+  private SparkClosedLoopController pid;
+  private ArmFeedforward ff;
   /*Seta o encoder do intakefloor(intakeMarlon) e tambem as funções PID atualmente chamadas de SparkClosedLoopController para definir o pid */
   public IntakeFloor() {
-  /*Abre a classe IntakeFloor de define as susa funções, suas configurações são feitas pelo comando new SparkMaxConfig aonde configura, direção, maxima voltagem, modo parado, modo de como reiniciar e modo ligado */
+ /*Abre a classe IntakeFloor de define as suas funções, suas configurações são feitas pelo comando new SparkMaxConfig aonde configura, direção, maxima voltagem, modo parado, modo de como reiniciar e modo ligado */
   
+  intakeMarlonMotor = new SparkMax(Constants.IntakeFloor.intakeMarlonMotorID, MotorType.kBrushless
+  );
+  intakeCleitaoMotor = new SparkMax(Constants.IntakeFloor.intakeCleitaoMotorID, MotorType.kBrushless
+  );
+
+  intakeMarlonEncoder = intakeMarlonMotor.getEncoder();
+  pid = intakeMarlonMotor.getClosedLoopController();
+  ff = new ArmFeedforward(
+    0.2,
+    0.6,
+    0.1
+  );
+
   intakeCleitaoMotor.configure(
   new SparkMaxConfig()
   .idleMode(IdleMode.kBrake)
-  .smartCurrentLimit(50),
+  .smartCurrentLimit(60),
   ResetMode.kNoResetSafeParameters,
   PersistMode.kPersistParameters);
 
@@ -47,11 +60,11 @@ public class IntakeFloor extends SubsystemBase {
     cfg
     .idleMode(IdleMode.kBrake)
     .inverted(false)
-    .smartCurrentLimit(50);
+    .smartCurrentLimit(60);
 
 
     cfg.closedLoop
-     .p(0.0)
+     .p(0.3)
      .i(0.0)
      .d(0.0)
      .outputRange(-1.0, 1.0);
@@ -72,6 +85,10 @@ public class IntakeFloor extends SubsystemBase {
  /*Faz config para puxar a informação do angulo que está */
   }
 
+  public double getAnguloRad(){
+    return Math.toRadians(getAngulo());
+  }
+
   public double grausParaRotacao(double graus) {
   return (graus / 360.0) * Reducao;
   /*Transforma o angulo para rotações */
@@ -82,11 +99,13 @@ public class IntakeFloor extends SubsystemBase {
   /*Reseta a posição do encoder */
   }
   public void moverParaAngulo(double alvoGraus){
-  alvoGraus = MathUtil.clamp(alvoGraus, LimiteInferior, LimiteSuperior);
-  pid.setReference(grausParaRotacao(alvoGraus), ControlType.kPosition);
+    alvoGraus = MathUtil.clamp(alvoGraus, LimiteInferior, LimiteSuperior) ;
+    usandoFF = true;
+
+    double alvoCompensado = CompensarComFF(alvoGraus);
+    pid.setReference(grausParaRotacao(alvoCompensado), ControlType.kPosition);
   /*FAz a função do autonomo moverParaAngulo, que diz para ir para posição do limite superior ou inferior, utilizando o PID */
-  }
-  
+  }  
   public boolean noLimiteSuperior() {
   return getAngulo() >= LimiteSuperior;
   /*Usa as funções limite superior e inferior para definir aonde o encoder deve parar */
@@ -102,16 +121,22 @@ public class IntakeFloor extends SubsystemBase {
   }
   
   public void setIntakeMarlonVelocidade(double velocidade) {
-  /*if (velocidade > 0 && noLimiteSuperior()) {
+  if (velocidade > 0 && noLimiteSuperior()) {
   intakeMarlonMotor.set(0);
   return;
   }
   if (velocidade < 0 && noLimiteInferior()) {
   intakeMarlonMotor.set(0);
   return;
-  }*/
+  }
+  usandoFF = false;
   intakeMarlonMotor.set(velocidade);
   /*Comando principal para setar a velocidade do robo, para se acertar as travas de segurança e o joyStick for solto */
+  }
+  private double CompensarComFF(double alvoGraus){
+    double ffVolts = ff.calculate(Math.toRadians(alvoGraus), 0.0);
+    double compensacao = MathUtil.clamp(ffVolts * 0.05, -5.0, 5.0);
+    return alvoGraus + compensacao;
   }
   
   public void setRoller(double velocidade) {
@@ -139,8 +164,8 @@ public class IntakeFloor extends SubsystemBase {
   SmartDashboard.putNumber("Intake Ângulo (°)", getAngulo());
   SmartDashboard.putNumber("Marlon Rotações",
   intakeMarlonEncoder.getPosition());
-  SmartDashboard.putBoolean("Limite Superior 300", noLimiteSuperior());
-  SmartDashboard.putBoolean("Limite Inferior 75º", noLimiteInferior());
+  SmartDashboard.putBoolean("Limite Superior 360", noLimiteSuperior());
+  SmartDashboard.putBoolean("Limite Inferior 0º", noLimiteInferior());
   
   SmartDashboard.putNumber("Lift Output", intakeMarlonMotor.get());
   SmartDashboard.putNumber("Roller Output", intakeCleitaoMotor.get());

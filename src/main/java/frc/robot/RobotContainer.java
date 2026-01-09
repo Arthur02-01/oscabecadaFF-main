@@ -8,8 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;    // Interface de comandos
 
 // Imports para botões e gatilhos
-import edu.wpi.first.wpilibj2.command.button.JoystickButton; // Botões físicos
-import edu.wpi.first.wpilibj2.command.button.Trigger;        // Gatilhos baseados em condição
+import edu.wpi.first.wpilibj2.command.button.JoystickButton; // Botões físico       // Gatilhos baseados em condição
 
 // Imports dos subsistemas
 import frc.robot.Subsystem.Traction;     // Subsistema de tração
@@ -86,12 +85,14 @@ public class RobotContainer {
 
     // Gatilho baseado no eixo Y do analógico esquerdo do xbox2
     // Se puxar para cima além de -0.2, o intake sobe
-    new Trigger(() -> xbox2.getLeftY() < -0.2)
-        .whileTrue(new IntakeSubindo(intakeFloor));
+    new edu.wpi.first.wpilibj2.command.button.Trigger(() -> xbox2.getLeftY() < -0.2).whileTrue(new IntakeSubindo(intakeFloor));
+    /*new Trigger(() -> xbox2.getLeftY() < -0.2)
+        .whileTrue(new IntakeSubindo(intakeFloor));*/
 
     // Se empurrar o analógico para baixo além de 0.4, o intake desce
-    new Trigger(() -> xbox2.getLeftY() > 0.4)
-        .whileTrue(new IntakeDescendo(intakeFloor));
+    new edu.wpi.first.wpilibj2.command.button.Trigger(() -> xbox2.getLeftY() > 0.4).whileTrue(new IntakeDescendo(intakeFloor));
+    /*new Trigger(() -> xbox2.getLeftY() > 0.4)
+        .whileTrue(new IntakeDescendo(intakeFloor));*/
   }
 
   public Command getAutonomousCommand() {
