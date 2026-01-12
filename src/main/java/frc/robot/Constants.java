@@ -7,12 +7,12 @@ public final class Constants {
 
         // ===== SPARK MAX - TRAÇÃO =====
         // Lado direito
-        public static final int rightFrontMotorID = 19;
-        public static final int rightBackMotorID  = 10;
+        public static final int rightFrontMotorID = 5;
+        public static final int rightBackMotorID  = 2;
 
         // Lado esquerdo
-        public static final int leftFrontMotorID  = 1;
-        public static final int leftBackMotorID   = 9;
+        public static final int leftFrontMotorID  = 3;
+        public static final int leftBackMotorID   = 1;
 
         // ===== ENCODERS (PORTAS DIO DO roboRIO) =====
         // Ajuste se os fios estiverem em outras portas
@@ -31,7 +31,7 @@ public final class Constants {
 
     // ================= INTAKE FLOOR =================
     public static final class IntakeFloor {
-        public static final int intakeMarlonMotorID  = 9;
+        public static final int intakeMarlonMotorID  = 10;
         public static final int intakeCleitaoMotorID = 8;
 
         public static final double IntakeIn  = 45.0;

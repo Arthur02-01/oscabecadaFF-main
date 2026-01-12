@@ -72,7 +72,7 @@ public class Traction extends SubsystemBase {
 
         // Configuração motores da direita
         configSparkMotorDireita
-                .inverted(false)
+                .inverted(true)
                 .idleMode(IdleMode.kBrake)
                 .smartCurrentLimit(60);
 
@@ -102,9 +102,9 @@ public class Traction extends SubsystemBase {
                 ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
-        // ===== CONFIGURAÇÃO DOS ENCODERS
-        double wheelDiameterMeters = 0.1524; // 6 polegadas
-        int pulsesPerRevolution = 1024;      // AJUSTE se necessário
+        // CONFIGURAÇÃO DOS ENCODERS
+        double wheelDiameterMeters = 0.1524; 
+        int pulsesPerRevolution = 1024;      
 
         double distancePerPulse =
                 (Math.PI * wheelDiameterMeters) / pulsesPerRevolution;

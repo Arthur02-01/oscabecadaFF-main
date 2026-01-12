@@ -94,9 +94,9 @@ public class RobotContainer {
     /*new Trigger(() -> xbox2.getLeftY() > 0.4)
         .whileTrue(new IntakeDescendo(intakeFloor));*/
   }
-
+    // comando autonomo matheus
   public Command getAutonomousCommand() {
-      return new AndarEncoder(traction, 0.3, 0.5);
+      return new AndarEncoder(traction, 0.5, 0.02);
   }  
 
 }
