@@ -22,9 +22,10 @@ public class IntakeFloor extends SubsystemBase {
   public SparkMax intakeMarlonMotor;
   public SparkMax intakeCleitaoMotor;
   /*Define dentro do Spark, os construtores dos motores, ou seja onde achar seu id e qual o tipo de motor*/
-  public static final double LimiteSuperior = 350.0;
-  public static final double LimiteInferior = 10.0;
+  public static final double LimiteSuperior = 345.0;
+  public static final double LimiteInferior = 165.0;
   public static final double Reducao = 12.0;
+  private static final double MAX_Velocidade = 0.15;
   public boolean usandoFF = false;
   /*Seta as funções ainda a serem utilizadas como limitações e reduções */
   private RelativeEncoder intakeMarlonEncoder;
@@ -121,16 +122,17 @@ public class IntakeFloor extends SubsystemBase {
   }
   
   public void setIntakeMarlonVelocidade(double velocidade) {
-  if (velocidade > 0 && noLimiteSuperior()) {
+   double LimiteVelocidade = MathUtil.clamp(velocidade, MAX_Velocidade, MAX_Velocidade);
+  if (LimiteVelocidade > 0 && noLimiteSuperior()) {
   intakeMarlonMotor.set(0);
   return;
   }
-  if (velocidade < 0 && noLimiteInferior()) {
+  if (LimiteVelocidade < 0 && noLimiteInferior()) {
   intakeMarlonMotor.set(0);
   return;
   }
   usandoFF = false;
-  intakeMarlonMotor.set(velocidade);
+  intakeMarlonMotor.set(LimiteVelocidade);
   /*Comando principal para setar a velocidade do robo, para se acertar as travas de segurança e o joyStick for solto */
   }
   private double CompensarComFF(double alvoGraus){

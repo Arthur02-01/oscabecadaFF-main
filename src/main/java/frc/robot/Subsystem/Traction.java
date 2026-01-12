@@ -124,7 +124,7 @@ public class Traction extends SubsystemBase {
     }
 
     public void arcadeMode(double drive, double turn) {
-        differentialDrive.arcadeDrive(drive, turn);
+        differentialDrive.arcadeDrive(-drive, +turn);
     }
 
     public void stop() {

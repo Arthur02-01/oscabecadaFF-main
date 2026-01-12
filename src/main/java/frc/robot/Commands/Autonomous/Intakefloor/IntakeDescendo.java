@@ -6,7 +6,7 @@
   
   public class IntakeDescendo extends Command {
   private final IntakeFloor intake;
-  private final double velocidade = -0.3;
+  private final double velocidade = -0.2;
   
   public IntakeDescendo(IntakeFloor intake) {
   this.intake = intake;

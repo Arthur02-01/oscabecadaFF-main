@@ -22,7 +22,7 @@ public class Controller extends Command {
     // Referência ao controle Xbox
     private final XboxController xbox;
 
-    // Variáveis de controle do movimento
+    
     public double drive;       // Movimento frente / trás
     public double turn;        // Rotação esquerda / direita
     public double velocidade;  // Fator de velocidade (normal ou turbo)
@@ -65,27 +65,15 @@ public class Controller extends Command {
             velocidade = 0.6;   // Modo normal
         }
 
-        /*
-         * Aqui você já percebeu corretamente uma possível inversão:
-         * 
-         * Normalmente:
-         *  - LeftY  -> frente / trás (drive)
-         *  - RightX -> rotação (turn)
-         * 
-         * Dependendo da orientação física:
-         *  - pode ser necessário inverter sinais
-         *  - ou trocar os eixos
-         */
-
-        // Leitura dos eixos do controle com aplicação da velocidade
-        turn  = xbox.getLeftY()  * velocidade;
-        drive = xbox.getRightX() * velocidade;
+        
+        drive  = xbox.getLeftY()  * velocidade;
+        turn = xbox.getRightX() * velocidade;
 
         // Normalização para evitar que a soma ultrapasse 1.0
         double max = Math.abs(drive) + Math.abs(turn);
         if (max > 1.0) {
-            drive /= max;
-            turn  /= max;
+            drive = max;
+            turn  = max;
         }
 
         // Envia os valores para o subsistema de tração

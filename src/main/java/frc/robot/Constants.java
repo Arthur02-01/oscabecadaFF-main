@@ -31,8 +31,8 @@ public final class Constants {
 
     // ================= INTAKE FLOOR =================
     public static final class IntakeFloor {
-        public static final int intakeMarlonMotorID  = 10;
-        public static final int intakeCleitaoMotorID = 8;
+        public static final int intakeMarlonMotorID  = 8;
+        public static final int intakeCleitaoMotorID = 10;
 
         public static final double IntakeIn  = 45.0;
         public static final double IntakeOut = 0.0;
