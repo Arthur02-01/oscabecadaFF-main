@@ -22,8 +22,8 @@ public class IntakeFloor extends SubsystemBase {
   public SparkMax intakeMarlonMotor;
   public SparkMax intakeCleitaoMotor;
   /*Define dentro do Spark, os construtores dos motores, ou seja onde achar seu id e qual o tipo de motor*/
-  public static final double LimiteSuperior = 345.0;
-  public static final double LimiteInferior = 165.0;
+  public static final double LimiteSuperior = 205.0;
+  public static final double LimiteInferior = 90.0;
   public static final double Reducao = 12.0;
   private static final double MAX_Velocidade = 0.15;
   public boolean usandoFF = false;
@@ -77,7 +77,7 @@ public class IntakeFloor extends SubsystemBase {
   PersistMode.kPersistParameters
 );
   
-  resetToStartAngle();
+  //resetToStartAngle();
   /*Absolutamente necessario pois zera a informação do angulo para não deixar começar no angulo a qual parou */
   }
   
