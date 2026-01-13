@@ -26,6 +26,7 @@ public class IntakeFloor extends SubsystemBase {
   public static final double LimiteInferior = 90.0;
   public static final double Reducao = 12.0;
   private static final double MAX_Velocidade = 0.15;
+  private static final double Margen_Erro = 15.0;
   public boolean usandoFF = false;
   /*Seta as funções ainda a serem utilizadas como limitações e reduções */
   private RelativeEncoder intakeMarlonEncoder;
@@ -108,12 +109,12 @@ public class IntakeFloor extends SubsystemBase {
   /*FAz a função do autonomo moverParaAngulo, que diz para ir para posição do limite superior ou inferior, utilizando o PID */
   }  
   public boolean noLimiteSuperior() {
-  return getAngulo() >= LimiteSuperior;
+  return getAngulo() >= (LimiteSuperior - Margen_Erro );
   /*Usa as funções limite superior e inferior para definir aonde o encoder deve parar */
   }
   
   public boolean noLimiteInferior() {
-  return getAngulo() <= LimiteInferior;
+  return getAngulo() <= (LimiteInferior + Margen_Erro);
   }
   
   public double getIntakeMarlonPosition() {
@@ -123,13 +124,26 @@ public class IntakeFloor extends SubsystemBase {
   
   public void setIntakeMarlonVelocidade(double velocidade) {
    double LimiteVelocidade = MathUtil.clamp(velocidade, -MAX_Velocidade, +MAX_Velocidade);
-  if (LimiteVelocidade > 0 && noLimiteSuperior()) {
-  intakeMarlonMotor.set(0);
+   double Angulo = getAngulo();
+  if (LimiteVelocidade > 0) {
+    double distancia = LimiteSuperior - Angulo;
+     if(distancia <= 0) {
+      intakeMarlonMotor.set(0);
   return;
+     }
+     if (distancia < Margen_Erro) {
+      LimiteVelocidade *= distancia/Margen_Erro;
+     }
   }
-  if (LimiteVelocidade < 0 && noLimiteInferior()) {
-  intakeMarlonMotor.set(0);
+  if (LimiteVelocidade < 0){
+    double distancia = Angulo - LimiteInferior;
+    if(distancia <= 0){
+      intakeMarlonMotor.set(0);
   return;
+    }
+    if (distancia < Margen_Erro){
+      LimiteVelocidade *= distancia / Margen_Erro;
+    }
   }
   usandoFF = false;
   intakeMarlonMotor.set(LimiteVelocidade);
@@ -166,8 +180,8 @@ public class IntakeFloor extends SubsystemBase {
   SmartDashboard.putNumber("Intake Ângulo (°)", getAngulo());
   SmartDashboard.putNumber("Marlon Rotações",
   intakeMarlonEncoder.getPosition());
-  SmartDashboard.putBoolean("Limite Superior 360", noLimiteSuperior());
-  SmartDashboard.putBoolean("Limite Inferior 0º", noLimiteInferior());
+  SmartDashboard.putBoolean("Limite Superior 205", noLimiteSuperior());
+  SmartDashboard.putBoolean("Limite Inferior 90º", noLimiteInferior());
   
   SmartDashboard.putNumber("Lift Output", intakeMarlonMotor.get());
   SmartDashboard.putNumber("Roller Output", intakeCleitaoMotor.get());
