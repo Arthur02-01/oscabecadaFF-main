@@ -60,9 +60,9 @@ public class Controller extends Command {
 
         // Define a velocidade com base no modo turbo do subsistema
         if (traction.turbo) {
-            velocidade = 0.9;   // Modo turbo
+            velocidade = 1.0;   // Modo turbo
         } else {
-            velocidade = 0.6;   // Modo normal
+            velocidade = 0.8;   // Modo normal
         }
 
         
@@ -71,7 +71,7 @@ public class Controller extends Command {
 
         // Normalização para evitar que a soma ultrapasse 1.0
         double max = Math.abs(drive) + Math.abs(turn);
-        if (max > 1.0) {
+        if (max > 2.0) {
             drive = max;
             turn  = max;
         }

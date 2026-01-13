@@ -122,7 +122,7 @@ public class IntakeFloor extends SubsystemBase {
   }
   
   public void setIntakeMarlonVelocidade(double velocidade) {
-   double LimiteVelocidade = MathUtil.clamp(velocidade, MAX_Velocidade, MAX_Velocidade);
+   double LimiteVelocidade = MathUtil.clamp(velocidade, -MAX_Velocidade, +MAX_Velocidade);
   if (LimiteVelocidade > 0 && noLimiteSuperior()) {
   intakeMarlonMotor.set(0);
   return;

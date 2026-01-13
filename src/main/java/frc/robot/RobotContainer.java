@@ -96,7 +96,7 @@ public class RobotContainer {
   }
     // comando autonomo matheus
   public Command getAutonomousCommand() {
-      return new AndarEncoder(traction, 0.5, 0.02);
+      return new AndarEncoder(traction, 0.5, 0.0);
   }  
 
 }
