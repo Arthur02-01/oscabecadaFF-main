@@ -9,6 +9,8 @@ public class AndarEncoder extends Command {
     private final double velocidade;
     private final double distancia;
 
+    private double distanciaInicial;
+
     public AndarEncoder(Traction traction, double velocidade, double distancia) {
         this.traction = traction;
         this.velocidade = velocidade;
@@ -18,7 +20,8 @@ public class AndarEncoder extends Command {
 
     @Override
     public void initialize() {
-        traction.resetEncoders();
+        // Salva a distância atual em vez de confiar no reset
+        distanciaInicial = traction.getAverageDistance();
     }
 
     @Override
@@ -33,6 +36,7 @@ public class AndarEncoder extends Command {
 
     @Override
     public boolean isFinished() {
-        return Math.abs(traction.getAverageDistance()) >= distancia;
+        double distanciaAtual = traction.getAverageDistance();
+        return Math.abs(distanciaAtual - distanciaInicial) >= distancia;
     }
 }

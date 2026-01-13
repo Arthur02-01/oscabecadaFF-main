@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.XboxController;
 
 // Imports do sistema Command-based
 import edu.wpi.first.wpilibj2.command.Command;    // Interface de comandos
-
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // Imports para botões e gatilhos
 import edu.wpi.first.wpilibj2.command.button.JoystickButton; // Botões físico       // Gatilhos baseados em condição
 
@@ -21,6 +21,7 @@ import frc.robot.Commands.Autonomous.Intakefloor.IntakeDescendo;
 import frc.robot.Commands.Autonomous.Intakefloor.IntakeGirando;
 import frc.robot.Commands.Autonomous.Intakefloor.IntakeSubindo;
 import frc.robot.Commands.Autonomous.Tracao.AndarEncoder;
+import frc.robot.Commands.Autonomous.Tracao.GirarPorAngulo;
 
 // Classe responsável por:
 // - Criar subsistemas
@@ -95,8 +96,13 @@ public class RobotContainer {
         .whileTrue(new IntakeDescendo(intakeFloor));*/
   }
     // comando autonomo matheus
-  public Command getAutonomousCommand() {
-      return new AndarEncoder(traction, 0.5, 0.0);
-  }  
-
+    public Command getAutonomousCommand() {
+        return new SequentialCommandGroup(
+            new AndarEncoder(traction, -0.6, 2.0).withTimeout(2.0),
+            new AndarEncoder(traction, 0.6, 1.5).withTimeout(2.0),
+            new GirarPorAngulo(traction, 180).withTimeout(2.0),
+            new AndarEncoder(traction, 0.6, 1.5).withTimeout(2.0)
+        );
+    }
+    
 }

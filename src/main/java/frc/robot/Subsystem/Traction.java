@@ -1,27 +1,28 @@
-// Define o pacote onde esse subsistema está localizado
 package frc.robot.Subsystem;
 
-// Imports das classes da REV (Spark MAX)
+// Imports da REV (Spark MAX)
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.RelativeEncoder;
+
+// Gyro
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 // Imports da WPILib
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.Encoder;
 
 import frc.robot.Constants;
 
 // Declara o subsistema de tração
 public class Traction extends SubsystemBase {
 
-    // VARIÁVEIS 
-
+    // VARIÁVEIS
     public boolean turbo;
 
     // Motores
@@ -36,6 +37,13 @@ public class Traction extends SubsystemBase {
 
     private SparkMax leftMotorBack =
             new SparkMax(Constants.TractionConstants.leftBackMotorID, MotorType.kBrushed);
+
+    // Encoders do Spark
+    private RelativeEncoder leftEncoder;
+    private RelativeEncoder rightEncoder;
+
+    // Gyro
+    private final Pigeon2 pigeon = new Pigeon2(22); // id 22 can
 
     // Configurações
     private SparkMaxConfig configSparkMotorEsquerda = new SparkMaxConfig();
@@ -54,21 +62,18 @@ public class Traction extends SubsystemBase {
     private DifferentialDrive differentialDrive =
             new DifferentialDrive(leftMotorControllerGroup, rightMotorControllerGroup);
 
-    // ENCODERS 
+    // Constantes físicas
+    private static final double WHEEL_DIAMETER_METERS = 0.1524; // 6 polegadas
+    private static final double METERS_PER_ROTATION =
+            Math.PI * WHEEL_DIAMETER_METERS;
 
-    private Encoder leftEncoder =
-            new Encoder(
-                    Constants.TractionConstants.leftEncoderChannelA,
-                    Constants.TractionConstants.leftEncoderChannelB);
-
-    private Encoder rightEncoder =
-            new Encoder(
-                    Constants.TractionConstants.rightEncoderChannelA,
-                    Constants.TractionConstants.rightEncoderChannelB);
+    // Ajuste do robô
+    private static final double GEAR_RATIO = 10.71;
 
     // CONSTRUTOR
-
     public Traction() {
+
+        pigeon.reset();
 
         // Configuração motores da direita
         configSparkMotorDireita
@@ -102,26 +107,12 @@ public class Traction extends SubsystemBase {
                 ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
-        // CONFIGURAÇÃO DOS ENCODERS
-        double wheelDiameterMeters = 0.1524; 
-        int pulsesPerRevolution = 1024;      
-
-        double distancePerPulse =
-                (Math.PI * wheelDiameterMeters) / pulsesPerRevolution;
-
-        leftEncoder.setDistancePerPulse(distancePerPulse);
-        rightEncoder.setDistancePerPulse(distancePerPulse);
-
-        // Inverta se necessário
-        rightEncoder.setReverseDirection(true);
+        // Inicializa encoders do Spark
+        leftEncoder = leftMotorFront.getEncoder();
+        rightEncoder = rightMotorFront.getEncoder();
     }
 
-    // MÉTODOS
-
-    @Override
-    public void periodic() {
-        // opcional: telemetria
-    }
+    // CONTROLE DE MOVIMENTO
 
     public void arcadeMode(double drive, double turn) {
         differentialDrive.arcadeDrive(-drive, +turn);
@@ -135,13 +126,32 @@ public class Traction extends SubsystemBase {
         this.turbo = turbo;
     }
 
-    // ENCODER API 
+    // GYRO
+
+
+    public void resetYaw() {
+        pigeon.reset();
+    }
+
+    public double getYaw() {
+        return pigeon.getAngle(); // contínuo
+    }
+
+    // ENCODERS
+
     public void resetEncoders() {
-        leftEncoder.reset();
-        rightEncoder.reset();
+        leftEncoder.setPosition(0);
+        rightEncoder.setPosition(0);
     }
 
     public double getAverageDistance() {
-        return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2.0;
+        double leftDistance =
+            (leftEncoder.getPosition() / GEAR_RATIO) * METERS_PER_ROTATION;
+
+        double rightDistance =
+            (-rightEncoder.getPosition() / GEAR_RATIO) * METERS_PER_ROTATION;
+
+        // Usa o maior valor absoluto para mais estabilidade
+        return Math.max(Math.abs(leftDistance), Math.abs(rightDistance));
     }
 }
