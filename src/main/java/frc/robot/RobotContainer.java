@@ -98,9 +98,12 @@ public class RobotContainer {
     // comando autonomo matheus
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
-            new AndarEncoder(traction, -0.6, 0.6),
-            new GirarPorAngulo(traction, 90).withTimeout(0.35),
-            new AndarEncoder(traction, -0.6, 0.2)
+            new AndarEncoder(traction, -0.6, 0.62),
+            new GirarPorAngulo(traction, 90).withTimeout(0.43),
+            new AndarEncoder(traction, -0.6, 0.3),
+            new AndarEncoder(traction, 0.6, 0.3),
+            new GirarPorAngulo(traction, 90).withTimeout(0.43),
+            new AndarEncoder(traction, -0.6, 0.4)
         );
     }
     

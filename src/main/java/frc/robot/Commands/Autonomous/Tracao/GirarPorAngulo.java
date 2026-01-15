@@ -7,7 +7,7 @@ public class GirarPorAngulo extends Command {
 
     private final Traction traction;
     private final double anguloAlvo;
-    private final double velocidade = 0.85;
+    private final double velocidade = 0.75;
 
     private double anguloInicial;
 
